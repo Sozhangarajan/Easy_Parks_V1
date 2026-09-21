@@ -1,13 +1,11 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../../core/services/auth.service';
-import { NavbarComponent } from '../../../../shared/components/navbar/navbar.component';
+import { DataService } from '../../../../core/services/data.service';
 import { BottomNavComponent } from '../../../../shared/components/bottom-nav/bottom-nav.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,125 +14,645 @@ import { MatDialog } from '@angular/material/dialog';
   selector: 'app-user-profile',
   standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
     MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDividerModule,
-    NavbarComponent,
     BottomNavComponent,
   ],
   template: `
-    <app-navbar title="Profile" [showMenu]="true" />
+    <div class="profile-page">
 
-    <div class="page-content">
-      <div class="profile-header">
-        <div class="avatar">
-          <mat-icon>person</mat-icon>
+      <!-- ===== HERO HEADER ===== -->
+      <div class="hero-header">
+        <div class="hero-bg"></div>
+
+        <div class="hero-content">
+          <!-- AVATAR -->
+          <div class="avatar-section">
+            <div class="avatar-ring">
+              <div class="avatar-inner">
+                <mat-icon>person</mat-icon>
+              </div>
+              <button class="avatar-edit" (click)="editMode.set(!editMode())">
+                <mat-icon>{{ editMode() ? 'close' : 'edit' }}</mat-icon>
+              </button>
+            </div>
+            <h1>{{ user()?.name }}</h1>
+            <p class="role-badge">
+              <mat-icon>{{ user()?.role === 'owner' ? 'store' : 'person' }}</mat-icon>
+              {{ user()?.role === 'owner' ? 'Parking Owner' : 'User' }}
+            </p>
+          </div>
+
+          <!-- STATS -->
+          <div class="stats-row">
+            <div class="stat-card">
+              <span class="stat-num">{{ totalBookings() }}</span>
+              <span class="stat-label">Bookings</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-card">
+              <span class="stat-num">\${{ totalSpent() }}</span>
+              <span class="stat-label">Spent</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-card">
+              <span class="stat-num">{{ memberSince() }}</span>
+              <span class="stat-label">Member</span>
+            </div>
+          </div>
         </div>
-        <h2>{{ user()?.name }}</h2>
-        <p>{{ user()?.email }}</p>
       </div>
 
-      <div class="profile-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Name</mat-label>
-          <input matInput [(ngModel)]="editName" />
-          <mat-icon matPrefix>person</mat-icon>
-        </mat-form-field>
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="main-content">
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput [value]="user()?.email" disabled />
-          <mat-icon matPrefix>email</mat-icon>
-        </mat-form-field>
+        <!-- PROFILE INFO CARD -->
+        <div class="info-card">
+          <div class="card-header">
+            <mat-icon>person</mat-icon>
+            <span>Personal Information</span>
+          </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Mobile</mat-label>
-          <input matInput [value]="user()?.mobile" disabled />
-          <mat-icon matPrefix>phone</mat-icon>
-        </mat-form-field>
+          <div class="info-row">
+            <div class="info-icon">
+              <mat-icon>badge</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Full Name</span>
+              @if (editMode()) {
+                <input class="inline-input" [(ngModel)]="editName" placeholder="Enter name" />
+              } @else {
+                <span class="info-value">{{ user()?.name }}</span>
+              }
+            </div>
+          </div>
 
-        <button mat-flat-button class="full-width save-btn" (click)="saveProfile()">
-          Save Changes
-        </button>
-      </div>
+          <div class="info-row">
+            <div class="info-icon">
+              <mat-icon>email</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Email Address</span>
+              <span class="info-value">{{ user()?.email }}</span>
+            </div>
+            <span class="verified-badge">
+              <mat-icon>verified</mat-icon>
+            </span>
+          </div>
 
-      <mat-divider />
+          <div class="info-row">
+            <div class="info-icon">
+              <mat-icon>phone</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Phone Number</span>
+              <span class="info-value">{{ user()?.mobile }}</span>
+            </div>
+          </div>
 
-      <div class="actions">
-        <button mat-stroked-button class="full-width switch-btn" (click)="switchRole()">
-          <mat-icon>swap_horiz</mat-icon>
-          Switch to Owner
-        </button>
-        <button mat-stroked-button class="full-width logout-btn" color="warn" (click)="logout()">
+          @if (editMode()) {
+            <button class="save-btn" (click)="saveProfile()">
+              <mat-icon>check</mat-icon>
+              Save Changes
+            </button>
+          }
+        </div>
+
+        <!-- SETTINGS CARD -->
+        <div class="info-card">
+          <div class="card-header">
+            <mat-icon>settings</mat-icon>
+            <span>Settings</span>
+          </div>
+
+          <button class="settings-row" (click)="switchRole()">
+            <div class="settings-left">
+              <div class="settings-icon si-role">
+                <mat-icon>swap_horiz</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Switch Role</span>
+                <span class="settings-desc">Currently {{ user()?.role === 'owner' ? 'Owner' : 'User' }}</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-notif">
+                <mat-icon>notifications</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Notifications</span>
+                <span class="settings-desc">Booking updates & offers</span>
+              </div>
+            </div>
+            <div class="toggle-track on">
+              <div class="toggle-thumb"></div>
+            </div>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-lang">
+                <mat-icon>language</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Language</span>
+                <span class="settings-desc">English</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-theme">
+                <mat-icon>dark_mode</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Dark Mode</span>
+                <span class="settings-desc">Off</span>
+              </div>
+            </div>
+            <div class="toggle-track">
+              <div class="toggle-thumb"></div>
+            </div>
+          </button>
+        </div>
+
+        <!-- SUPPORT CARD -->
+        <div class="info-card">
+          <div class="card-header">
+            <mat-icon>help</mat-icon>
+            <span>Support</span>
+          </div>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-help">
+                <mat-icon>help_outline</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Help Center</span>
+                <span class="settings-desc">FAQs & support</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-privacy">
+                <mat-icon>shield</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Privacy Policy</span>
+                <span class="settings-desc">How we protect your data</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-rate">
+                <mat-icon>star</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Rate Us</span>
+                <span class="settings-desc">Share your experience</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+        </div>
+
+        <!-- LOGOUT -->
+        <button class="logout-btn" (click)="logout()">
           <mat-icon>logout</mat-icon>
           Logout
         </button>
-      </div>
-    </div>
 
-    <app-bottom-nav />
+        <!-- APP VERSION -->
+        <p class="version">E-Parking v1.0.0</p>
+      </div>
+
+      <app-bottom-nav />
+    </div>
   `,
   styles: [`
-    .page-content { padding: 64px 16px 80px; }
-    .full-width { width: 100%; }
-    .profile-header {
-      text-align: center;
-      padding: 24px 0;
+    :host { display: block; }
+
+    .profile-page {
+      min-height: 100vh;
+      background: #f0f5f7;
+      font-family: 'Poppins', 'Roboto', sans-serif;
     }
-    .avatar {
-      width: 80px;
-      height: 80px;
+
+    /* ---------- HERO HEADER ---------- */
+    .hero-header {
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 28px;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #0b2f4a 0%, #12587a 40%, #2f9bbf 100%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 20px 18px 0;
+    }
+
+    /* avatar */
+    .avatar-section {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .avatar-ring {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 14px;
+    }
+    .avatar-inner {
+      width: 96px;
+      height: 96px;
       border-radius: 50%;
-      background: #fff7ed;
+      background: rgba(255,255,255,0.15);
+      border: 3px solid rgba(242,201,76,0.7);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 12px;
     }
-    .avatar mat-icon { font-size: 40px; width: 40px; height: 40px; color: #FF9933; }
-    .profile-header h2 { margin: 0; }
-    .profile-header p { margin: 4px 0 0; color: #6b7280; font-size: 14px; }
-    .profile-form { padding: 0 0 16px; }
-    .save-btn {
-      height: 44px;
-      border-radius: 12px;
-      margin-top: 8px;
-      background: #FF9933;
+    .avatar-inner mat-icon {
+      font-size: 42px;
+      width: 42px;
+      height: 42px;
       color: white;
     }
-    mat-divider { margin: 16px 0; }
-    .actions {
+    .avatar-edit {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid white;
+      background: #f2c94c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .avatar-edit:hover { transform: scale(1.1); }
+    .avatar-edit mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #0b2f4a;
+    }
+
+    .avatar-section h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      color: white;
+    }
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin: 6px 0 0;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+    }
+    .role-badge mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    /* stats */
+    .stats-row {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 14px 0;
+      backdrop-filter: blur(8px);
+    }
+    .stat-card {
+      flex: 1;
+      text-align: center;
+    }
+    .stat-num {
+      display: block;
+      font-size: 20px;
+      font-weight: 800;
+      color: white;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+    }
+    .stat-divider {
+      width: 1px;
+      height: 30px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .main-content {
+      padding: 0 18px 90px;
+    }
+
+    /* ---------- INFO CARDS ---------- */
+    .info-card {
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 12px rgba(11,47,74,0.06);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0b2f4a;
+    }
+    .card-header mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: #0f7173;
+    }
+
+    /* info rows */
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f7f9;
+    }
+    .info-row:last-child { border-bottom: none; }
+
+    .info-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #f0f5f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .info-icon mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #0f7173;
+    }
+
+    .info-content {
+      flex: 1;
       display: flex;
       flex-direction: column;
+    }
+    .info-label {
+      font-size: 11px;
+      color: #9aa8b1;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .info-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0b2f4a;
+    }
+
+    .verified-badge mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #138808;
+    }
+
+    .inline-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid #0f7173;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #0b2f4a;
+      font-family: 'Poppins', 'Roboto', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .inline-input:focus { border-color: #f2c94c; }
+
+    .save-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #0f7173, #2f9bbf);
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Poppins', 'Roboto', sans-serif;
+    }
+    .save-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15,113,115,0.3);
+    }
+    .save-btn mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    /* settings rows */
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 12px 0;
+      border: none;
+      background: transparent;
+      border-bottom: 1px solid #f5f7f9;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Poppins', 'Roboto', sans-serif;
+    }
+    .settings-row:last-child { border-bottom: none; }
+
+    .settings-left {
+      display: flex;
+      align-items: center;
       gap: 12px;
     }
-    .switch-btn {
-      height: 44px;
-      border-radius: 12px;
+    .settings-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .logout-btn {
-      height: 44px;
+    .settings-icon mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: white;
+    }
+    .si-role { background: linear-gradient(135deg, #0f7173, #2f9bbf); }
+    .si-notif { background: linear-gradient(135deg, #FF9933, #e67300); }
+    .si-lang { background: linear-gradient(135deg, #138808, #22c55e); }
+    .si-theme { background: linear-gradient(135deg, #0b2f4a, #12587a); }
+    .si-help { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .si-privacy { background: linear-gradient(135deg, #059669, #10b981); }
+    .si-rate { background: linear-gradient(135deg, #f2c94c, #f59e0b); }
+
+    .settings-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .settings-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0b2f4a;
+    }
+    .settings-desc {
+      font-size: 12px;
+      color: #9aa8b1;
+    }
+    .settings-arrow {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: #dfe7eb;
+    }
+
+    /* toggle */
+    .toggle-track {
+      width: 42px;
+      height: 24px;
       border-radius: 12px;
+      background: #dfe7eb;
+      position: relative;
+      transition: background 0.25s;
+      cursor: pointer;
+    }
+    .toggle-track.on { background: #0f7173; }
+    .toggle-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      transition: transform 0.25s;
+    }
+    .toggle-track.on .toggle-thumb { transform: translateX(18px); }
+
+    /* ---------- LOGOUT ---------- */
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1.5px solid #fee2e2;
+      background: #fef2f2;
+      color: #dc2626;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 14px;
+      font-family: 'Poppins', 'Roboto', sans-serif;
+    }
+    .logout-btn:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+    .logout-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ---------- VERSION ---------- */
+    .version {
+      text-align: center;
+      font-size: 12px;
+      color: #b0bec5;
+      margin: 0;
     }
   `],
 })
-export class UserProfileComponent {
+export class UserProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
-  user = this.authService.user;
-  editName = '';
+  private dataService = inject(DataService);
 
-  constructor() {
+  user = this.authService.user;
+  editMode = signal(false);
+  editName = '';
+  totalBookings = signal(0);
+  totalSpent = signal(0);
+  memberSince = signal('');
+
+  ngOnInit(): void {
     const u = this.authService.user();
-    if (u) this.editName = u.name;
+    if (u) {
+      this.editName = u.name;
+      this.loadStats(u.uid);
+    }
+  }
+
+  loadStats(uid: string): void {
+    const bookings = this.dataService.getBookingsByUser(uid);
+    this.totalBookings.set(bookings.length);
+    this.totalSpent.set(bookings.filter(b => b.status !== 'cancelled').reduce((s, b) => s + b.totalCost, 0));
+    const d = new Date();
+    this.memberSince.set(d.toLocaleString('en', { month: 'short', year: 'numeric' }));
   }
 
   saveProfile(): void {
-    // Mock save
+    this.editMode.set(false);
     alert('Profile saved (mock)');
   }
 
