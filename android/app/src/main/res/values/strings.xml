@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">e-parking</string>
+    <string name="title_activity_main">e-parking</string>
+    <string name="package_name">com.eparking.app</string>
+    <string name="custom_url_scheme">com.eparking.app</string>
+</resources>

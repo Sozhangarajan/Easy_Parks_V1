@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-landing',
@@ -418,10 +419,13 @@ export class LandingComponent {
   password = '';
   showPassword = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   goToLogin(): void {
-    this.router.navigate(['/auth/login']);
+    this.authService.login('john@example.com', 'password123').then(() => {
+      this.router.navigate(['/auth/role-select']);
+      // this.router.navigate(['/user/home']);
+    });
   }
 
   goToRegister(): void {
