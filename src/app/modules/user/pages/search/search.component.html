@@ -1,0 +1,169 @@
+    <div class="search-page">
+
+      <!-- ===== HERO HEADER ===== -->
+      <div class="hero-header">
+        <div class="hero-bg"></div>
+
+        <div class="hero-content">
+          <h1>Find Parking</h1>
+          <p class="hero-sub">Search {{ totalSpots() }} spots near you</p>
+
+          <!-- SEARCH INPUT -->
+          <div class="search-box">
+            <div class="search-input-wrap" [class.focused]="searchFocused()">
+              <mat-icon class="search-icon">search</mat-icon>
+              <input
+                type="text"
+                placeholder="Search by name or address..."
+                [(ngModel)]="searchQuery"
+                (focus)="searchFocused.set(true)"
+                (blur)="searchFocused.set(false)"
+                (input)="onSearchInput()"
+              />
+              @if (searchQuery) {
+                <button class="clear-btn" (click)="clearSearch()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="main-content">
+
+        <!-- QUICK FILTER CHIPS -->
+        <div class="chips-section">
+          <div class="chips-scroll">
+            <button class="chip" [class.active]="activeChip() === 'all'" (click)="setChip('all')">
+              <mat-icon>grid_view</mat-icon>
+              All
+            </button>
+            <button class="chip" [class.active]="activeChip() === 'available'" (click)="setChip('available')">
+              <mat-icon>check_circle</mat-icon>
+              Available
+            </button>
+            <button class="chip" [class.active]="activeChip() === '247'" (click)="setChip('247')">
+              <mat-icon>schedule</mat-icon>
+              24/7
+            </button>
+            <button class="chip" [class.active]="activeChip() === 'ev'" (click)="setChip('ev')">
+              <mat-icon>ev_station</mat-icon>
+              EV Charging
+            </button>
+            <button class="chip" [class.active]="activeChip() === 'cheap'" (click)="setChip('cheap')">
+              <mat-icon>savings</mat-icon>
+              Under $3/hr
+            </button>
+            <button class="chip" [class.active]="activeChip() === 'top'" (click)="setChip('top')">
+              <mat-icon>star</mat-icon>
+              Top Rated
+            </button>
+          </div>
+        </div>
+
+        <!-- FILTERS SECTION -->
+        <div class="filters-card">
+          <div class="filter-header">
+            <div class="filter-title">
+              <mat-icon>tune</mat-icon>
+              <span>Filters</span>
+            </div>
+            <button class="reset-btn" (click)="resetFilters()">Reset</button>
+          </div>
+
+          <!-- PRICE RANGE -->
+          <div class="filter-group">
+            <div class="filter-label">
+              <span>Max Price</span>
+              <span class="price-badge">\${{ maxPrice() }}/hr</span>
+            </div>
+            <mat-slider [min]="1" [max]="20" [step]="1" class="price-slider">
+              <input matSliderThumb [ngModel]="maxPriceValue" (ngModelChange)="onPriceChange($event)" />
+            </mat-slider>
+            <div class="price-labels">
+              <span>$1</span>
+              <span>$20</span>
+            </div>
+          </div>
+
+          <!-- AVAILABILITY TOGGLE -->
+          <div class="filter-group">
+            <div class="toggle-row" (click)="toggleAvailable()">
+              <div class="toggle-info">
+                <mat-icon [class.active]="availableOnly()">check_circle</mat-icon>
+                <span>Available only</span>
+              </div>
+              <div class="toggle-track" [class.on]="availableOnly()">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SORT BY -->
+          <div class="filter-group">
+            <div class="filter-label"><span>Sort by</span></div>
+            <div class="sort-options">
+              <button class="sort-btn" [class.active]="sortBy() === 'relevance'" (click)="setSort('relevance')">
+                <mat-icon>trending_up</mat-icon>
+                Relevance
+              </button>
+              <button class="sort-btn" [class.active]="sortBy() === 'price'" (click)="setSort('price')">
+                <mat-icon>payments</mat-icon>
+                Price
+              </button>
+              <button class="sort-btn" [class.active]="sortBy() === 'rating'" (click)="setSort('rating')">
+                <mat-icon>star</mat-icon>
+                Rating
+              </button>
+              <button class="sort-btn" [class.active]="sortBy() === 'slots'" (click)="setSort('slots')">
+                <mat-icon>local_parking</mat-icon>
+                Slots
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS HEADER -->
+        <div class="results-header">
+          <div class="results-info">
+            <span class="results-count">{{ results().length }}</span>
+            <span class="results-label">spots found</span>
+          </div>
+          <div class="view-toggle">
+            <button class="view-btn" [class.active]="viewMode() === 'list'" (click)="viewMode.set('list')">
+              <mat-icon>view_list</mat-icon>
+            </button>
+            <button class="view-btn" [class.active]="viewMode() === 'grid'" (click)="viewMode.set('grid')">
+              <mat-icon>grid_view</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- RESULTS -->
+        @if (loading()) {
+          <app-spinner message="Searching..." />
+        } @else if (results().length === 0) {
+          <div class="empty-wrap">
+            <div class="empty-illustration">
+              <mat-icon>search_off</mat-icon>
+            </div>
+            <h3>No spots found</h3>
+            <p>Try adjusting your search or filters</p>
+            <button class="retry-btn" (click)="resetFilters()">
+              <mat-icon>refresh</mat-icon>
+              Reset Filters
+            </button>
+          </div>
+        } @else {
+          <div [class]="viewMode() === 'grid' ? 'spot-grid' : 'spot-list'">
+            @for (spot of results(); track spot.id) {
+              <app-spot-card [spot]="spot" (clicked)="onSpotClick($event)" />
+            }
+          </div>
+        }
+      </div>
+
+      <app-bottom-nav />
+    </div>

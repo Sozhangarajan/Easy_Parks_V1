@@ -1,0 +1,40 @@
+    .login-page {
+      min-height: 100vh;
+      padding: 48px 24px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 { margin: 0; font-size: 28px; color: #FF9933; }
+    .header p { margin: 8px 0 0; color: #6b7280; }
+    .full-width { width: 100%; }
+    .error-message {
+      color: #dc2626;
+      font-size: 13px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .submit-btn {
+      height: 48px;
+      font-size: 16px;
+      border-radius: 12px;
+      margin-top: 8px;
+      background: #FF9933;
+      color: white;
+    }
+    .links {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .links a {
+      color: #138808;
+      text-decoration: none;
+      font-weight: 500;
+    }

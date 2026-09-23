@@ -47,6 +47,47 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'services',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'fastag',
+        loadComponent: () =>
+          import('./modules/services/pages/fastag/fastag.component').then((m) => m.FastagComponent),
+      },
+      {
+        path: 'license-reminder',
+        loadComponent: () =>
+          import('./modules/services/pages/license-reminder/license-reminder.component').then((m) => m.LicenseReminderComponent),
+      },
+      {
+        path: 'insurance-reminder',
+        loadComponent: () =>
+          import('./modules/services/pages/insurance-reminder/insurance-reminder.component').then((m) => m.InsuranceReminderComponent),
+      },
+      {
+        path: 'vehicle-documents',
+        loadComponent: () =>
+          import('./modules/services/pages/vehicle-documents/vehicle-documents.component').then((m) => m.VehicleDocumentsComponent),
+      },
+      {
+        path: 'puc-reminder',
+        loadComponent: () =>
+          import('./modules/services/pages/puc-reminder/puc-reminder.component').then((m) => m.PucReminderComponent),
+      },
+      {
+        path: 'challan-check',
+        loadComponent: () =>
+          import('./modules/services/pages/challan-check/challan-check.component').then((m) => m.ChallanCheckComponent),
+      },
+      {
+        path: '',
+        redirectTo: 'fastag',
+        pathMatch: 'full',
+      },
+    ],
+  },
+  {
     path: 'user',
     canActivate: [roleGuard],
     data: { role: 'user' },

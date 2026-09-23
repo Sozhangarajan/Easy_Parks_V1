@@ -1,0 +1,43 @@
+{
+  // Exclude heavy folders from file watching (main lag fix)
+  "files.watcherExclude": {
+    "**/android/**": true,
+    "**/dist/**": true,
+    "**/.angular/**": true,
+    "**/node_modules/**/.*": true,
+    "**/*.apk": true,
+    "**/build/**": true,
+    "**/.gradle/**": true
+  },
+
+  // Exclude from search
+  "search.exclude": {
+    "**/android": true,
+    "**/dist": true,
+    "**/.angular": true,
+    "**/node_modules": true
+  },
+
+  // Exclude from file explorer
+  "files.exclude": {
+    "**/.angular": true
+  },
+
+  // Stop Java/Gradle extension from loading the android folder (fixes the error popup)
+  "java.import.exclusions": [
+    "**/android/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.angular/**"
+  ],
+  "java.import.gradle.enabled": false,
+  "java.autobuild.enabled": false,
+  "redhat.telemetry.enabled": false,
+
+  // TypeScript performance
+  "typescript.tsserver.maxTsServerMemory": 2048,
+  "editor.maxTokenizationLineLength": 2000,
+
+  // Angular
+  "angular.enable-ivy-tailwind": false
+}

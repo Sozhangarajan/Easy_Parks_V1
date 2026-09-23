@@ -1,0 +1,178 @@
+<div class="service-page">
+
+  <!-- ===== HERO HEADER ===== -->
+  <div class="hero-header">
+    <div class="hero-bg"></div>
+    <div class="anim-layer">
+      <div class="float-shape fs-1"><mat-icon>gavel</mat-icon></div>
+      <div class="float-shape fs-2"><mat-icon>receipt_long</mat-icon></div>
+      <div class="float-shape fs-3"><mat-icon>payments</mat-icon></div>
+      <div class="float-shape fs-4"><mat-icon>report_problem</mat-icon></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <svg class="grid-lines" viewBox="0 0 400 250" preserveAspectRatio="none">
+        <line x1="0" y1="0" x2="400" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="100" y1="0" x2="500" y2="250" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="200" y1="0" x2="600" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="hero-content">
+      <button class="back-btn" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="hero-title-group">
+        <div class="hero-icon-wrap"><mat-icon>gavel</mat-icon></div>
+        <h1>Challan &amp; Fines</h1>
+        <p class="hero-sub">Check &amp; pay pending traffic fines</p>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-spinner-overlay message="Fetching challans..." />
+  }
+
+  <div class="page-body">
+
+    <!-- SEARCH -->
+    <div class="form-section search-section">
+      <div class="section-header">
+        <div class="section-icon si-blue"><mat-icon>search</mat-icon></div>
+        <div>
+          <h2>Check Challans</h2>
+          <p>Enter vehicle or license number</p>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:0">
+        <label class="field-label">Vehicle / DL Number <span class="required">*</span></label>
+        <div class="input-wrap">
+          <mat-icon class="field-icon">pin</mat-icon>
+          <input type="text" [(ngModel)]="vehicleNo" (keyup.enter)="search()" placeholder="e.g. TN 09 AB 1234" class="custom-input" />
+          <button type="button" class="input-action" (click)="search()" [disabled]="!vehicleNo.trim()">
+            <mat-icon>search</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    @if (searched()) {
+
+      <!-- SUMMARY -->
+      <div class="stats-row">
+        <div class="stat-card sc-pending">
+          <div class="stat-icon"><mat-icon>pending_actions</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ pendingCount }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+        <div class="stat-card sc-amount">
+          <div class="stat-icon"><mat-icon>payments</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-num">\${{ pendingAmount }}</span>
+            <span class="stat-label">Amount Due</span>
+          </div>
+        </div>
+        <div class="stat-card sc-paid">
+          <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ challans().length - pendingCount }}</span>
+            <span class="stat-label">Resolved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTERS — circular icon model -->
+      <div class="filter-circle-grid">
+        @for (f of filters; track f.value) {
+          <button
+            type="button"
+            class="filter-circle-item"
+            [class.active]="filter() === f.value"
+            (click)="filter.set(f.value)"
+          >
+            <span class="filter-circle" [style.background]="'linear-gradient(135deg,' + f.color + ', ' + f.color + 'cc)'">
+              <mat-icon>{{ f.icon }}</mat-icon>
+              @if (filter() === f.value) {
+                <span class="filter-check"><mat-icon>check</mat-icon></span>
+              }
+            </span>
+            <span class="filter-label">{{ f.label }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- CHALLAN LIST -->
+      <div class="challan-list">
+        @for (c of filtered; track c.id) {
+          <div class="challan-card" [class]="'st-' + c.status">
+            <div class="challan-top">
+              <div class="challan-icon" [class]="'ci-' + c.status">
+                <mat-icon>{{ c.status === 'paid' ? 'check_circle' : c.status === 'disputed' ? 'report' : 'priority_high' }}</mat-icon>
+              </div>
+              <div class="challan-head">
+                <span class="challan-reason">{{ c.reason }}</span>
+                <span class="challan-id">{{ c.id }}</span>
+              </div>
+              <span class="status-pill" [class]="'sp-' + c.status">{{ c.status }}</span>
+            </div>
+
+            <div class="challan-meta">
+              <span class="meta-item"><mat-icon>location_on</mat-icon>{{ c.location }}</span>
+              <span class="meta-item"><mat-icon>event</mat-icon>{{ c.date }}</span>
+              <span class="meta-item"><mat-icon>local_police</mat-icon>{{ c.authority }}</span>
+            </div>
+
+            <div class="challan-bottom">
+              <span class="challan-amount">\${{ c.amount }}<small>.00</small></span>
+              @if (c.status === 'pending') {
+                <button type="button" class="btn-pay" [disabled]="payingId() === c.id" (click)="pay(c)">
+                  @if (payingId() === c.id) {
+                    <span class="spinner-mini"></span> Processing...
+                  } @else {
+                    <mat-icon>payments</mat-icon> Pay Now
+                  }
+                </button>
+              } @else if (c.status === 'paid') {
+                <button type="button" class="btn-receipt">
+                  <mat-icon>receipt</mat-icon> Receipt
+                </button>
+              } @else {
+                <button type="button" class="btn-dispute">
+                  <mat-icon>forum</mat-icon> Disputed
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- PAY ALL -->
+      @if (pendingCount > 0 && filter() !== 'paid') {
+        <div class="pay-all-bar">
+          <div class="pay-all-info">
+            <span>Total pending</span>
+            <strong>\${{ pendingAmount }}.00</strong>
+          </div>
+          <button type="button" class="btn-pay-all" (click)="payAll()">
+            <mat-icon>bolt</mat-icon>
+            Pay All
+          </button>
+        </div>
+      }
+
+      @if (pendingCount === 0) {
+        <div class="all-clear">
+          <mat-icon>verified</mat-icon>
+          <h3>All Clear!</h3>
+          <p>No pending challans for this vehicle.</p>
+        </div>
+      }
+
+    }
+
+    <div class="bottom-space"></div>
+
+  </div>
+</div>

@@ -1,0 +1,122 @@
+<div class="service-page">
+
+  <!-- ===== HERO HEADER ===== -->
+  <div class="hero-header">
+    <div class="hero-bg"></div>
+    <div class="anim-layer">
+      <div class="float-shape fs-1"><mat-icon>folder_shared</mat-icon></div>
+      <div class="float-shape fs-2"><mat-icon>description</mat-icon></div>
+      <div class="float-shape fs-3"><mat-icon>drive_file_rename_outline</mat-icon></div>
+      <div class="float-shape fs-4"><mat-icon>cloud_upload</mat-icon></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <svg class="grid-lines" viewBox="0 0 400 250" preserveAspectRatio="none">
+        <line x1="0" y1="0" x2="400" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="100" y1="0" x2="500" y2="250" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="200" y1="0" x2="600" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="hero-content">
+      <button class="back-btn" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="hero-title-group">
+        <div class="hero-icon-wrap"><mat-icon>folder_shared</mat-icon></div>
+        <h1>Vehicle Documents</h1>
+        <p class="hero-sub">All your papers in one place</p>
+      </div>
+    </div>
+  </div>
+
+  @if (uploaded()) {
+    <div class="toast-success">
+      <mat-icon>check_circle</mat-icon>
+      <span>Document uploaded successfully!</span>
+    </div>
+  }
+
+  <div class="page-body">
+
+    <!-- VEHICLE SELECT -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon si-blue"><mat-icon>directions_car</mat-icon></div>
+        <div>
+          <h2>Select Vehicle</h2>
+          <p>Choose vehicle to view documents</p>
+        </div>
+      </div>
+      <div class="field-group" style="margin-bottom:0">
+        <label class="field-label">Vehicle Number</label>
+        <div class="input-wrap">
+          <mat-icon class="field-icon">pin</mat-icon>
+          <input type="text" [(ngModel)]="vehicleNo" placeholder="e.g. TN 09 AB 1234" class="custom-input" />
+          <button type="button" class="input-action"><mat-icon>search</mat-icon></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-card">
+      <div class="progress-ring-wrap">
+        <div class="progress-ring" [style.--pct]="uploadPct()">
+          <span class="ring-num">{{ docs() | statusCount:'uploaded' }}</span>
+          <span class="ring-denom">/{{ docs().length }}</span>
+        </div>
+      </div>
+      <div class="progress-info">
+        <span class="progress-title">Document Health</span>
+        <span class="progress-desc">Keep all docs updated to avoid fines</span>
+        <div class="mini-bar">
+          <div class="mini-fill" [style.width]="uploadPct() + '%'"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENT LIST -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon si-purple"><mat-icon>inventory_2</mat-icon></div>
+        <div>
+          <h2>Your Documents</h2>
+          <p>Upload or update each document</p>
+        </div>
+      </div>
+
+      <div class="doc-list">
+        @for (doc of docs(); track doc.id) {
+          <div class="doc-card" [class.doc-missing]="doc.status === 'missing'" [class.doc-expiring]="doc.status === 'expiring'">
+            <div class="doc-icon" [style.background]="doc.color">
+              <mat-icon>{{ doc.icon }}</mat-icon>
+            </div>
+            <div class="doc-info">
+              <div class="doc-title-row">
+                <span class="doc-title">{{ doc.title }}</span>
+                <span class="doc-status" [class]="'st-' + doc.status">{{ statusLabel(doc.status) }}</span>
+              </div>
+              <span class="doc-desc">{{ doc.file || doc.desc }}</span>
+            </div>
+            @if (doc.status === 'uploaded') {
+              <button type="button" class="doc-btn view" title="View">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            } @else {
+              <button type="button" class="doc-btn upload" (click)="uploadDoc(doc.id)" title="Upload">
+                <mat-icon>cloud_upload</mat-icon>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- TIP -->
+    <div class="info-banner">
+      <mat-icon>lightbulb</mat-icon>
+      <p>Store digital copies here — traffic police can verify e-docs via Digilocker integration.</p>
+    </div>
+
+    <div class="bottom-space"></div>
+
+  </div>
+</div>

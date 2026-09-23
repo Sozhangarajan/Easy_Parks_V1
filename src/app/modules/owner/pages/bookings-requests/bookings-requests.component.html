@@ -1,0 +1,161 @@
+    <div class="bookings-page">
+
+      <!-- ===== HERO HEADER ===== -->
+      <div class="hero-header">
+        <div class="hero-bg"></div>
+        <div class="anim-layer">
+          <div class="float-shape fs-1"><mat-icon>receipt_long</mat-icon></div>
+          <div class="float-shape fs-2"><mat-icon>check_circle</mat-icon></div>
+          <div class="float-shape fs-3"><mat-icon>pending</mat-icon></div>
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+        </div>
+
+        <div class="hero-content">
+          <h1>Booking Requests</h1>
+          <p class="hero-sub">Manage incoming reservations</p>
+
+          <div class="stats-row">
+            <div class="stat-pill sp-pending">
+              <span class="stat-num">{{ pendingCount() }}</span>
+              <span class="stat-label">Pending</span>
+            </div>
+            <div class="stat-pill sp-active">
+              <span class="stat-num">{{ activeCount() }}</span>
+              <span class="stat-label">Active</span>
+            </div>
+            <div class="stat-pill sp-done">
+              <span class="stat-num">{{ completedCount() }}</span>
+              <span class="stat-label">Done</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="main-content">
+
+        <!-- FILTER CHIPS -->
+        <div class="filter-chips">
+          <button class="chip" [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">
+            All
+            <span class="chip-count">{{ totalCount() }}</span>
+          </button>
+          <button class="chip" [class.active]="activeFilter() === 'pending'" (click)="setFilter('pending')">
+            <mat-icon>pending</mat-icon>
+            Pending
+          </button>
+          <button class="chip" [class.active]="activeFilter() === 'confirmed'" (click)="setFilter('confirmed')">
+            <mat-icon>check_circle</mat-icon>
+            Confirmed
+          </button>
+          <button class="chip" [class.active]="activeFilter() === 'completed'" (click)="setFilter('completed')">
+            <mat-icon>task_alt</mat-icon>
+            Completed
+          </button>
+          <button class="chip" [class.active]="activeFilter() === 'cancelled'" (click)="setFilter('cancelled')">
+            <mat-icon>cancel</mat-icon>
+            Cancelled
+          </button>
+        </div>
+
+        <!-- BOOKING LIST -->
+        @if (loading()) {
+          <app-spinner message="Loading bookings..." />
+        } @else if (filteredBookings().length === 0) {
+          <div class="empty-wrap">
+            <div class="empty-illustration">
+              <mat-icon>{{ getEmptyIcon() }}</mat-icon>
+            </div>
+            <h3>{{ getEmptyTitle() }}</h3>
+            <p>{{ getEmptyMessage() }}</p>
+          </div>
+        } @else {
+          <div class="booking-list">
+            @for (booking of filteredBookings(); track booking.id) {
+              <div class="booking-card" [class.bc-past]="booking.status === 'completed' || booking.status === 'cancelled'">
+
+                <!-- card top -->
+                <div class="card-top">
+                  <span class="status-badge" [class]="'badge-' + booking.status">
+                    <mat-icon>{{ getStatusIcon(booking.status) }}</mat-icon>
+                    {{ booking.status }}
+                  </span>
+                  <span class="booking-id">#{{ booking.id }}</span>
+                </div>
+
+                <!-- user + spot -->
+                <div class="user-row">
+                  <div class="user-avatar">
+                    <span>{{ booking.userName.charAt(0) }}</span>
+                  </div>
+                  <div class="user-info">
+                    <span class="user-name">{{ booking.userName }}</span>
+                    <span class="spot-name">
+                      <mat-icon>local_parking</mat-icon>
+                      {{ booking.spotName }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- details grid -->
+                <div class="details-grid">
+                  <div class="detail-item">
+                    <mat-icon>calendar_today</mat-icon>
+                    <div>
+                      <span class="detail-label">Date</span>
+                      <span class="detail-value">{{ booking.startTime | date:'MMM d, yyyy' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>schedule</mat-icon>
+                    <div>
+                      <span class="detail-label">Time</span>
+                      <span class="detail-value">{{ booking.startTime | date:'shortTime' }} - {{ booking.endTime | date:'shortTime' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>timer</mat-icon>
+                    <div>
+                      <span class="detail-label">Duration</span>
+                      <span class="detail-value">{{ booking.totalHours }}h</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>payments</mat-icon>
+                    <div>
+                      <span class="detail-label">Revenue</span>
+                      <span class="detail-value cost">\${{ booking.totalCost }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- actions -->
+                @if (booking.status === 'pending') {
+                  <div class="card-actions">
+                    <button class="action-btn btn-confirm" (click)="updateStatus(booking, 'confirmed')">
+                      <mat-icon>check</mat-icon>
+                      Confirm
+                    </button>
+                    <button class="action-btn btn-reject" (click)="updateStatus(booking, 'cancelled')">
+                      <mat-icon>close</mat-icon>
+                      Reject
+                    </button>
+                  </div>
+                }
+                @if (booking.status === 'completed') {
+                  <div class="card-actions">
+                    <button class="action-btn btn-view">
+                      <mat-icon>visibility</mat-icon>
+                      View Details
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <app-bottom-nav />
+    </div>

@@ -1,0 +1,138 @@
+<div class="role-page">
+
+  <!-- ===== ANIMATED BACKGROUND ===== -->
+  <div class="bg-layer">
+    <div class="gradient-bg"></div>
+
+    <!-- floating shapes -->
+    <div class="float-shape shape-1">
+      <mat-icon>local_parking</mat-icon>
+    </div>
+    <div class="float-shape shape-2">
+      <mat-icon>directions_car</mat-icon>
+    </div>
+    <div class="float-shape shape-3">
+      <mat-icon>ev_station</mat-icon>
+    </div>
+    <div class="float-shape shape-4">
+      <mat-icon>map</mat-icon>
+    </div>
+    <div class="float-shape shape-5">
+      <mat-icon>schedule</mat-icon>
+    </div>
+    <div class="float-shape shape-6">
+      <mat-icon>payments</mat-icon>
+    </div>
+
+    <!-- glowing orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- grid lines -->
+    <svg class="grid-lines" viewBox="0 0 400 800" preserveAspectRatio="none">
+      <line x1="0" y1="0" x2="400" y2="800" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="100" y1="0" x2="500" y2="800" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="200" y1="0" x2="600" y2="800" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      <line x1="-100" y1="0" x2="300" y2="800" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="400" y1="0" x2="0" y2="800" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+      <line x1="500" y1="0" x2="100" y2="800" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <!-- ===== BACK BUTTON ===== -->
+  <div class="top-bar">
+    <button class="back-btn" (click)="goBack()" aria-label="Back to login">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  @if (loading()) {
+    <app-spinner [fullscreen]="true" message="Setting up your account..." />
+  }
+
+  <!-- ===== CARD ===== -->
+  <div class="card">
+    <div class="icon-badge">
+      <mat-icon>how_to_reg</mat-icon>
+    </div>
+
+    <h1>How will you use<br/>E-Parking?</h1>
+    <p class="subtitle">Choose your role to get started</p>
+
+    <div class="role-options">
+      <button class="role-card" (click)="selectRole('user')" [disabled]="loading()">
+        <div class="role-icon user">
+          <mat-icon>search</mat-icon>
+        </div>
+        <div class="role-info">
+          <h3>Find Parking</h3>
+          <p>Search and book parking spots near you</p>
+        </div>
+        <span class="arrow-badge">
+          <mat-icon>chevron_right</mat-icon>
+        </span>
+      </button>
+
+      <button class="role-card" (click)="selectRole('owner')" [disabled]="loading()">
+        <div class="role-icon owner">
+          <mat-icon>local_parking</mat-icon>
+        </div>
+        <div class="role-info">
+          <h3>List My Parking</h3>
+          <p>Manage your parking spots and earn money</p>
+        </div>
+        <span class="arrow-badge">
+          <mat-icon>chevron_right</mat-icon>
+        </span>
+      </button>
+    </div>
+
+    <p class="hint">You can switch roles later from your profile</p>
+
+    <!-- ===== MORE SERVICES ===== -->
+    <div class="services-divider">
+      <span class="line"></span>
+      <span>More services</span>
+      <span class="line"></span>
+    </div>
+
+    <div class="services-grid">
+      <button class="service-tile st-fastag" (click)="openService('fastag')" [disabled]="loading()">
+        <div class="st-icon"><mat-icon>toll</mat-icon></div>
+        <span class="st-title">FASTag Recharge</span>
+        <span class="st-desc">Top up &amp; manage your tag</span>
+      </button>
+
+      <button class="service-tile st-license" (click)="openService('license')" [disabled]="loading()">
+        <div class="st-icon"><mat-icon>badge</mat-icon></div>
+        <span class="st-title">License Reminder</span>
+        <span class="st-desc">Get notified before it expires</span>
+      </button>
+
+      <button class="service-tile st-insurance" (click)="openService('insurance')" [disabled]="loading()">
+        <div class="st-icon"><mat-icon>verified_user</mat-icon></div>
+        <span class="st-title">Insurance Renewal</span>
+        <span class="st-desc">Never miss a renewal date</span>
+      </button>
+
+      <button class="service-tile st-documents" (click)="openService('documents')" [disabled]="loading()">
+        <div class="st-icon"><mat-icon>folder_shared</mat-icon></div>
+        <span class="st-title">Vehicle Documents</span>
+        <span class="st-desc">RC, PUC &amp; more, in one place</span>
+      </button>
+
+      <button class="service-tile st-puc" (click)="openService('puc')" [disabled]="loading()">
+        <div class="st-icon"><mat-icon>eco</mat-icon></div>
+        <span class="st-title">PUC Reminder</span>
+        <span class="st-desc">Track pollution cert. validity</span>
+      </button>
+
+      <button class="service-tile st-challan" (click)="openService('challan')" [disabled]="loading()">
+        <div class="st-icon"><mat-icon>gavel</mat-icon></div>
+        <span class="st-title">Challan &amp; Fines</span>
+        <span class="st-desc">Check pending traffic fines</span>
+      </button>
+    </div>
+  </div>
+</div>

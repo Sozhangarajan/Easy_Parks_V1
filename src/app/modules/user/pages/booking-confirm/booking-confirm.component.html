@@ -1,0 +1,72 @@
+    <app-navbar title="Confirm Booking" [showBack]="true" />
+
+    <div class="page-content">
+      @if (loading()) {
+        <app-spinner message="Processing booking..." />
+      } @else if (spot()) {
+        <div class="spot-summary">
+          <img [src]="spot()!.photos[0] || 'https://via.placeholder.com/400x150'" [alt]="spot()!.name" />
+          <div class="spot-details">
+            <h3>{{ spot()!.name }}</h3>
+            <p>{{ spot()!.address }}</p>
+          </div>
+        </div>
+
+        <form [formGroup]="bookingForm" (ngSubmit)="confirmBooking()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Date</mat-label>
+            <input matInput formControlName="date" type="date" />
+            <mat-icon matPrefix>calendar_today</mat-icon>
+            @if (bookingForm.get('date')?.hasError('required')) {
+              <mat-error>Date is required</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="time-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Start Time</mat-label>
+              <input matInput formControlName="startTime" type="time" />
+              @if (bookingForm.get('startTime')?.hasError('required')) {
+                <mat-error>Required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>End Time</mat-label>
+              <input matInput formControlName="endTime" type="time" />
+              @if (bookingForm.get('endTime')?.hasError('required')) {
+                <mat-error>Required</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="cost-summary">
+            <div class="cost-row">
+              <span>Rate</span>
+              <span>\${{ spot()!.pricePerHour }}/hour</span>
+            </div>
+            <div class="cost-row">
+              <span>Hours</span>
+              <span>{{ calculatedHours() }}</span>
+            </div>
+            <div class="cost-row total">
+              <span>Total</span>
+              <span>\${{ calculatedCost() }}</span>
+            </div>
+          </div>
+
+          @if (errorMessage()) {
+            <div class="error-message">{{ errorMessage() }}</div>
+          }
+
+          <button
+            mat-flat-button
+            type="submit"
+            class="full-width confirm-btn"
+            [disabled]="bookingForm.invalid || loading()"
+          >
+            Confirm Booking
+          </button>
+        </form>
+      }
+    </div>

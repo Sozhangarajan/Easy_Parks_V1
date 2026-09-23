@@ -1,0 +1,167 @@
+    <div class="home-page">
+
+      <!-- ===== HERO HEADER ===== -->
+      <div class="hero-header">
+        <div class="hero-bg">
+          <div class="sky"></div>
+
+          <!-- animated particles -->
+          <div class="particle p1"></div>
+          <div class="particle p2"></div>
+          <div class="particle p3"></div>
+          <div class="particle p4"></div>
+          <div class="particle p5"></div>
+
+          <svg class="skyline" viewBox="0 0 400 80" preserveAspectRatio="none">
+            <rect x="0" y="30" width="30" height="50" fill="rgba(255,255,255,0.06)"/>
+            <rect x="34" y="15" width="24" height="65" fill="rgba(255,255,255,0.08)"/>
+            <rect x="62" y="35" width="26" height="45" fill="rgba(255,255,255,0.06)"/>
+            <rect x="300" y="20" width="26" height="60" fill="rgba(255,255,255,0.06)"/>
+            <rect x="330" y="10" width="22" height="70" fill="rgba(255,255,255,0.08)"/>
+            <rect x="356" y="25" width="24" height="55" fill="rgba(255,255,255,0.07)"/>
+          </svg>
+        </div>
+
+        <div class="hero-content">
+          <div class="welcome-row">
+            <div>
+              <p class="greeting">{{ greeting() }}</p>
+              <h1>Find Your Parking</h1>
+            </div>
+            <button class="avatar-btn" (click)="goToProfile()">
+              <mat-icon>person</mat-icon>
+            </button>
+          </div>
+
+          <!-- SEARCH BAR -->
+          <div class="search-card" (click)="goToSearch()">
+            <div class="search-icon-wrap">
+              <mat-icon>search</mat-icon>
+            </div>
+            <div class="search-text">
+              <span class="search-label">Where are you going?</span>
+              <span class="search-hint">Search by location or spot name</span>
+            </div>
+            <div class="search-mic">
+              <mat-icon>mic</mat-icon>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="main-content">
+
+        <!-- QUICK ACTIONS -->
+        <div class="section">
+          <div class="quick-grid">
+            <button class="quick-card" [class.active]="activeQuickFilter() === 'nearby'" (click)="setQuickFilter('nearby')">
+              <div class="quick-icon qi-1">
+                <mat-icon>near_me</mat-icon>
+              </div>
+              <span>Nearby</span>
+            </button>
+            <button class="quick-card" [class.active]="activeQuickFilter() === 'ev'" (click)="setQuickFilter('ev')">
+              <div class="quick-icon qi-2">
+                <mat-icon>ev_station</mat-icon>
+              </div>
+              <span>EV Charging</span>
+            </button>
+            <button class="quick-card" [class.active]="activeQuickFilter() === '247'" (click)="setQuickFilter('247')">
+              <div class="quick-icon qi-3">
+                <mat-icon>schedule</mat-icon>
+              </div>
+              <span>24/7 Open</span>
+            </button>
+            <button class="quick-card" [class.active]="activeQuickFilter() === 'cheap'" (click)="setQuickFilter('cheap')">
+              <div class="quick-icon qi-4">
+                <mat-icon>local_offer</mat-icon>
+              </div>
+              <span>Cheap</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- VIEW TOGGLE + MAP -->
+        <div class="section">
+          <div class="section-header">
+            <div class="header-left">
+              @if (activeQuickFilter()) {
+                <button class="back-pill" (click)="clearQuickFilter()">
+                  <mat-icon>arrow_back</mat-icon>
+                </button>
+              }
+              <h2>{{ getSectionTitle() }}</h2>
+            </div>
+            <div class="view-pills">
+              <button class="pill" [class.active]="viewMode() === 'list'" (click)="viewMode.set('list')">
+                <mat-icon>view_list</mat-icon>
+              </button>
+              <button class="pill" [class.active]="viewMode() === 'map'" (click)="viewMode.set('map')">
+                <mat-icon>map</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          @if (viewMode() === 'map') {
+            <div class="map-wrapper">
+              <app-map [spots]="displaySpots()" [height]="260" (markerClicked)="onSpotClick($event)" />
+            </div>
+          }
+        </div>
+
+        <!-- SPOT LIST -->
+        <div class="section">
+          <div class="section-header">
+            <h2>{{ activeQuickFilter() ? getFilterSpotTitle() : 'Nearby Spots' }}</h2>
+            <button class="see-all" (click)="goToSearch()">See All</button>
+          </div>
+
+          @if (loading()) {
+            <app-spinner message="Finding spots..." />
+          } @else if (displaySpots().length === 0) {
+            <div class="empty-wrap">
+              <div class="empty-icon-wrap">
+                <mat-icon>{{ getEmptyIcon() }}</mat-icon>
+              </div>
+              <h3>{{ getEmptyTitle() }}</h3>
+              <p>{{ getEmptyMessage() }}</p>
+              @if (activeQuickFilter()) {
+                <button class="clear-filter-btn" (click)="clearQuickFilter()">
+                  <mat-icon>clear_all</mat-icon>
+                  Show All Spots
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="spot-grid">
+              @for (spot of displaySpots().slice(0, showAll() ? displaySpots().length : 3); track spot.id) {
+                <app-spot-card [spot]="spot" (clicked)="onSpotClick($event)" />
+              }
+            </div>
+
+            @if (!showAll() && displaySpots().length > 3) {
+              <button class="show-more" (click)="showAll.set(true)">
+                <mat-icon>expand_more</mat-icon>
+                Show More ({{ displaySpots().length - 3 }} more)
+              </button>
+            }
+          }
+        </div>
+
+        <!-- QUICK TIPS -->
+        <div class="section">
+          <div class="tips-card">
+            <div class="tips-icon">
+              <mat-icon>tips_and_updates</mat-icon>
+            </div>
+            <div class="tips-content">
+              <h3>Parking Tip</h3>
+              <p>Book in advance to guarantee your spot and save up to 20% on hourly rates.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <app-bottom-nav />
+    </div>

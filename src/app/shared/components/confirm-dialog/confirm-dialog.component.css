@@ -1,0 +1,4 @@
+    .confirm-dialog { padding: 24px; }
+    h2 { margin: 0 0 8px; font-size: 18px; }
+    p { margin: 0 0 24px; color: #6b7280; font-size: 14px; }
+    .actions { display: flex; justify-content: flex-end; gap: 8px; }

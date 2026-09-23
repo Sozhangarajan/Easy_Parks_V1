@@ -1,0 +1,47 @@
+    .page-content { padding: 64px 16px 24px; }
+    .full-width { width: 100%; }
+    .spot-summary {
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      border: 1px solid #e5e7eb;
+    }
+    .spot-summary img { width: 100%; height: 150px; object-fit: cover; }
+    .spot-details { padding: 12px 16px; }
+    .spot-details h3 { margin: 0 0 4px; }
+    .spot-details p { margin: 0; font-size: 13px; color: #6b7280; }
+    .time-row { display: flex; gap: 12px; }
+    .half-width { flex: 1; }
+    .cost-summary {
+      padding: 16px;
+      background: #f3f4f6;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    .cost-row.total {
+      border-top: 1px solid #e5e7eb;
+      margin-top: 8px;
+      padding-top: 12px;
+      font-weight: 600;
+      font-size: 18px;
+      color: #FF9933;
+    }
+    .error-message {
+      color: #dc2626;
+      font-size: 13px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .confirm-btn {
+      height: 48px;
+      font-size: 16px;
+      border-radius: 12px;
+      background: #FF9933;
+      color: white;
+    }

@@ -6,17 +6,8 @@ declare const L: any;
 @Component({
   selector: 'app-map',
   standalone: true,
-  template: `
-    <div #mapContainer class="map-container" [style.height.px]="height()"></div>
-  `,
-  styles: [`
-    .map-container {
-      width: 100%;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #e5e7eb;
-    }
-  `],
+  templateUrl: './map.component.html',
+  styleUrls: ['./map.component.css'],
 })
 export class MapComponent implements AfterViewInit, OnChanges {
   @ViewChild('mapContainer') mapContainer!: ElementRef;
