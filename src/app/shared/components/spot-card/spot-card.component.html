@@ -1,0 +1,30 @@
+    <mat-card class="spot-card" (click)="onCardClick()">
+      <div class="card-image">
+        <img [src]="spot().photos[0] || 'https://via.placeholder.com/400x200'" [alt]="spot().name" />
+        @if (spot().availableSlots === 0) {
+          <div class="full-badge">Full</div>
+        }
+      </div>
+      <mat-card-content>
+        <div class="card-header">
+          <h3 class="spot-name">{{ spot().name }}</h3>
+          @if (spot().rating > 0) {
+            <div class="rating">
+              <mat-icon class="star-icon">star</mat-icon>
+              <span>{{ spot().rating | number:'1.1-1' }}</span>
+              <span class="review-count">({{ spot().reviewCount }})</span>
+            </div>
+          }
+        </div>
+        <p class="address">
+          <mat-icon class="loc-icon">location_on</mat-icon>
+          {{ spot().address }}
+        </p>
+        <div class="card-footer">
+          <span class="price">\${{ spot().pricePerHour }}/hr</span>
+          <span class="slots" [class.full]="spot().availableSlots === 0">
+            {{ spot().availableSlots }}/{{ spot().totalSlots }} slots
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>

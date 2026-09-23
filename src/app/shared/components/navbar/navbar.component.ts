@@ -10,45 +10,8 @@ import { AuthService } from '../../../core/services/auth.service';
   selector: 'app-navbar',
   standalone: true,
   imports: [MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule],
-  template: `
-    <mat-toolbar class="navbar">
-      @if (showBack()) {
-        <button mat-icon-button (click)="onBackClick()">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-      }
-      <span class="title">{{ title() }}</span>
-      <span class="spacer"></span>
-      @if (showMenu()) {
-        <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #menu="matMenu">
-          <button mat-menu-item (click)="onProfileClick()">
-            <mat-icon>person</mat-icon>
-            <span>Profile</span>
-          </button>
-          <button mat-menu-item (click)="onLogoutClick()">
-            <mat-icon>logout</mat-icon>
-            <span>Logout</span>
-          </button>
-        </mat-menu>
-      }
-    </mat-toolbar>
-  `,
-  styles: [`
-    .navbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      background: #FF9933;
-      color: #ffffff;
-    }
-    .title { flex: 1; font-weight: 500; }
-    .spacer { flex: 1; }
-  `],
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent {
   title = input('E-Parking');

@@ -1,0 +1,220 @@
+<div class="service-page">
+
+  <!-- ===== HERO HEADER ===== -->
+  <div class="hero-header">
+    <div class="hero-bg"></div>
+    <div class="anim-layer">
+      <div class="float-shape fs-1"><mat-icon>eco</mat-icon></div>
+      <div class="float-shape fs-2"><mat-icon>air</mat-icon></div>
+      <div class="float-shape fs-3"><mat-icon>notifications_active</mat-icon></div>
+      <div class="float-shape fs-4"><mat-icon>directions_car</mat-icon></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <svg class="grid-lines" viewBox="0 0 400 250" preserveAspectRatio="none">
+        <line x1="0" y1="0" x2="400" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="100" y1="0" x2="500" y2="250" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="200" y1="0" x2="600" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="hero-content">
+      <button class="back-btn" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="hero-title-group">
+        <div class="hero-icon-wrap"><mat-icon>eco</mat-icon></div>
+        <h1>PUC Reminder</h1>
+        <p class="hero-sub">Track pollution certificate validity</p>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-spinner [fullscreen]="true" message="Saving reminder..." />
+  }
+
+  @if (saved()) {
+    <div class="toast-success">
+      <mat-icon>check_circle</mat-icon>
+      <span>PUC reminder saved successfully!</span>
+    </div>
+  }
+
+  <div class="page-body">
+
+    <!-- PUC FORM -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon si-green"><mat-icon>eco</mat-icon></div>
+        <div>
+          <h2>PUC Details</h2>
+          <p>Enter certificate information</p>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Vehicle Number <span class="required">*</span></label>
+        <div class="input-wrap">
+          <mat-icon class="field-icon">pin</mat-icon>
+          <input type="text" [(ngModel)]="vehicleNo" placeholder="e.g. TN 09 AB 1234" class="custom-input" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">PUC Certificate Number</label>
+        <div class="input-wrap">
+          <mat-icon class="field-icon">receipt_long</mat-icon>
+          <input type="text" [(ngModel)]="pucNo" placeholder="e.g. PUC-TN-2024-567890" class="custom-input" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Expiry Date <span class="required">*</span></label>
+        <div class="input-wrap">
+          <mat-icon class="field-icon">event</mat-icon>
+          <input type="date" [(ngModel)]="expiryDate" class="custom-input" />
+        </div>
+      </div>
+
+      <!-- TESTING CENTER — circular icon grid -->
+      <div class="field-group">
+        <label class="field-label">Testing Center Type</label>
+        <div class="circle-grid-label">Tap a center type</div>
+        <div class="circle-grid">
+          @for (c of centers; track c.value) {
+            <button
+              type="button"
+              class="circle-item"
+              [class.selected]="selectedCenter === c.value"
+              (click)="selectedCenter = c.value"
+            >
+              <span class="circle" [style.background]="'linear-gradient(135deg,' + c.color + ', ' + c.color + 'cc)'">
+                <mat-icon class="circle-icon">{{ c.icon }}</mat-icon>
+                @if (selectedCenter === c.value) {
+                  <span class="circle-check"><mat-icon>check</mat-icon></span>
+                }
+              </span>
+              <span class="circle-label">{{ c.label }}</span>
+            </button>
+          }
+        </div>
+        <div class="selected-bar">
+          <span class="selected-dot" [style.background]="selectedCenterObj().color"></span>
+          <span>Testing at: <strong>{{ selectedCenterObj().label }}</strong></span>
+          <mat-icon>check_circle</mat-icon>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:0">
+        <label class="field-label">Nearest Center / Location</label>
+        <div class="input-wrap">
+          <mat-icon class="field-icon">map</mat-icon>
+          <input type="text" [(ngModel)]="center" placeholder="e.g. Anna Nagar, Chennai" class="custom-input" />
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTO REMINDERS -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon si-purple"><mat-icon>notifications_active</mat-icon></div>
+        <div>
+          <h2>Automatic Reminders</h2>
+          <p>No setup needed — we alert you on time</p>
+        </div>
+      </div>
+
+      <div class="auto-banner">
+        <div class="auto-banner-icon"><mat-icon>bolt</mat-icon></div>
+        <div class="auto-banner-text">
+          <strong>Smart alerts, zero effort</strong>
+          <span>We'll remind you automatically at 30, 15 and 7 day(s) before expiry — no schedule to configure.</span>
+        </div>
+      </div>
+
+      <div class="auto-timeline">
+        <div class="auto-node">
+          <span class="auto-dot an-blue"><mat-icon>notifications</mat-icon></span>
+          <span class="auto-day">30d</span>
+          <span class="auto-tip">Plan your test visit</span>
+        </div>
+        <div class="auto-line"></div>
+        <div class="auto-node">
+          <span class="auto-dot an-teal"><mat-icon>notifications</mat-icon></span>
+          <span class="auto-day">15d</span>
+          <span class="auto-tip">Renewal reminder</span>
+        </div>
+        <div class="auto-line"></div>
+        <div class="auto-node">
+          <span class="auto-dot an-orange"><mat-icon>priority_high</mat-icon></span>
+          <span class="auto-day">7d</span>
+          <span class="auto-tip">Urgent — test now</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERT DELIVERY -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-icon si-blue"><mat-icon>alternate_email</mat-icon></div>
+        <div>
+          <h2>Alert Delivery</h2>
+          <p>Sent to your registered account</p>
+        </div>
+      </div>
+
+      <div class="channel-card">
+        <div class="channel-icon ci-mail"><mat-icon>email</mat-icon></div>
+        <div class="channel-text">
+          <span class="channel-label">Email alerts</span>
+          <span class="channel-value">Your signup email address</span>
+        </div>
+        <span class="channel-badge">Auto</span>
+      </div>
+
+      <div class="channel-card">
+        <div class="channel-icon ci-bell"><mat-icon>notifications</mat-icon></div>
+        <div class="channel-text">
+          <span class="channel-label">In-app notification</span>
+          <span class="channel-value">On every login</span>
+        </div>
+        <span class="channel-badge">Auto</span>
+      </div>
+
+      <div class="channel-note">
+        <mat-icon>info</mat-icon>
+        <span>Alerts use the email linked to your account during signup. No extra contact details required.</span>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    @if (expiryDate) {
+      <div class="preview-card">
+        <div class="preview-icon"><mat-icon>eco</mat-icon></div>
+        <div class="preview-text">
+          <span class="preview-label">PUC expires on</span>
+          <span class="preview-date">{{ expiryDate }}</span>
+        </div>
+        @if (daysLeft() !== null) {
+          <span class="preview-days" [class.warn]="daysLeft()! <= 30">{{ daysLeft() }} days left</span>
+        }
+        <span class="preview-badge">Reminder ON</span>
+      </div>
+    }
+
+    <!-- INFO -->
+    <div class="info-banner">
+      <mat-icon>info</mat-icon>
+      <p>Driving without a valid PUC attracts a fine of <strong>$150</strong> for first offence and <strong>$300</strong> thereafter.</p>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="submit-section">
+      <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
+      <button type="button" class="btn-submit" [disabled]="!vehicleNo.trim() || !expiryDate || loading()" (click)="save()">
+        <mat-icon>notifications_active</mat-icon>
+        Set Reminder
+      </button>
+    </div>
+
+  </div>
+</div>

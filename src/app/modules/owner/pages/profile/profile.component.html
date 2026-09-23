@@ -1,0 +1,276 @@
+    <div class="profile-page">
+
+      <!-- ===== HERO HEADER ===== -->
+      <div class="hero-header">
+        <div class="hero-bg"></div>
+        <div class="anim-layer">
+          <div class="float-shape fs-1"><mat-icon>store</mat-icon></div>
+          <div class="float-shape fs-2"><mat-icon>business</mat-icon></div>
+          <div class="float-shape fs-3"><mat-icon>payments</mat-icon></div>
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+        </div>
+
+        <div class="hero-content">
+          <!-- AVATAR -->
+          <div class="avatar-section">
+            <div class="avatar-ring">
+              <div class="avatar-inner">
+                <mat-icon>store</mat-icon>
+              </div>
+              <button class="avatar-edit" (click)="editMode.set(!editMode())">
+                <mat-icon>{{ editMode() ? 'close' : 'edit' }}</mat-icon>
+              </button>
+            </div>
+            <h1>{{ user()?.name }}</h1>
+            <p class="role-badge">
+              <mat-icon>verified</mat-icon>
+              Verified Owner
+            </p>
+          </div>
+
+          <!-- STATS -->
+          <div class="stats-row">
+            <div class="stat-card">
+              <span class="stat-num">{{ totalSpots() }}</span>
+              <span class="stat-label">Spots</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-card">
+              <span class="stat-num">{{ totalEarnings() }}</span>
+              <span class="stat-label">Earned</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-card">
+              <span class="stat-num">{{ totalBookings() }}</span>
+              <span class="stat-label">Bookings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="main-content">
+
+        <!-- PERSONAL INFO -->
+        <div class="info-card">
+          <div class="card-header">
+            <mat-icon>person</mat-icon>
+            <span>Personal Information</span>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <mat-icon>badge</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Full Name</span>
+              @if (editMode()) {
+                <input class="inline-input" [(ngModel)]="editName" placeholder="Enter name" />
+              } @else {
+                <span class="info-value">{{ user()?.name }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <mat-icon>email</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Email Address</span>
+              <span class="info-value">{{ user()?.email }}</span>
+            </div>
+            <span class="verified-badge">
+              <mat-icon>verified</mat-icon>
+            </span>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <mat-icon>phone</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Phone Number</span>
+              <span class="info-value">{{ user()?.mobile }}</span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon">
+              <mat-icon>calendar_today</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Member Since</span>
+              <span class="info-value">{{ memberSince() }}</span>
+            </div>
+          </div>
+
+          @if (editMode()) {
+            <button class="save-btn" (click)="saveProfile()">
+              <mat-icon>check</mat-icon>
+              Save Changes
+            </button>
+          }
+        </div>
+
+        <!-- BUSINESS INFO -->
+        <div class="info-card">
+          <div class="card-header">
+            <mat-icon>storefront</mat-icon>
+            <span>Business Details</span>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon bi-type">
+              <mat-icon>apartment</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Business Type</span>
+              <span class="info-value">Individual Owner</span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon bi-earnings">
+              <mat-icon>trending_up</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Avg. Rating</span>
+              <span class="info-value">4.5 / 5.0</span>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="info-icon bi-rating">
+              <mat-icon>star</mat-icon>
+            </div>
+            <div class="info-content">
+              <span class="info-label">Occupancy Rate</span>
+              <span class="info-value">{{ occupancyRate() }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="info-card">
+          <div class="card-header">
+            <mat-icon>settings</mat-icon>
+            <span>Settings</span>
+          </div>
+
+          <button class="settings-row" (click)="switchRole()">
+            <div class="settings-left">
+              <div class="settings-icon si-role">
+                <mat-icon>swap_horiz</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Switch to User</span>
+                <span class="settings-desc">Browse and book parking</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-notif">
+                <mat-icon>notifications</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Notifications</span>
+                <span class="settings-desc">Booking alerts & updates</span>
+              </div>
+            </div>
+            <div class="toggle-track on">
+              <div class="toggle-thumb"></div>
+            </div>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-auto">
+                <mat-icon>auto_awesome</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Auto Accept</span>
+                <span class="settings-desc">Automatically confirm bookings</span>
+              </div>
+            </div>
+            <div class="toggle-track">
+              <div class="toggle-thumb"></div>
+            </div>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-lang">
+                <mat-icon>language</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Language</span>
+                <span class="settings-desc">English</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+        </div>
+
+        <!-- SUPPORT -->
+        <div class="info-card">
+          <div class="card-header">
+            <mat-icon>help</mat-icon>
+            <span>Support</span>
+          </div>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-help">
+                <mat-icon>help_outline</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Help Center</span>
+                <span class="settings-desc">FAQs & owner guides</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-privacy">
+                <mat-icon>shield</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Privacy Policy</span>
+                <span class="settings-desc">Data & security</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+
+          <button class="settings-row">
+            <div class="settings-left">
+              <div class="settings-icon si-rate">
+                <mat-icon>star</mat-icon>
+              </div>
+              <div class="settings-text">
+                <span class="settings-label">Rate Us</span>
+                <span class="settings-desc">Share your experience</span>
+              </div>
+            </div>
+            <mat-icon class="settings-arrow">chevron_right</mat-icon>
+          </button>
+        </div>
+
+        <!-- LOGOUT -->
+        <button class="logout-btn" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Logout
+        </button>
+
+        <p class="version">E-Parking v1.0.0</p>
+      </div>
+
+      <app-bottom-nav />
+    </div>

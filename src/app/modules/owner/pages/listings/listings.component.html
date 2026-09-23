@@ -1,0 +1,156 @@
+    <div class="listings-page">
+
+      <!-- ===== HERO HEADER ===== -->
+      <div class="hero-header">
+        <div class="hero-bg"></div>
+        <div class="anim-layer">
+          <div class="float-shape fs-1"><mat-icon>local_parking</mat-icon></div>
+          <div class="float-shape fs-2"><mat-icon>edit</mat-icon></div>
+          <div class="float-shape fs-3"><mat-icon>toggle_on</mat-icon></div>
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+        </div>
+
+        <div class="hero-content">
+          <h1>My Listings</h1>
+          <p class="hero-sub">Manage your parking spots</p>
+
+          <!-- STATS -->
+          <div class="stats-row">
+            <div class="stat-pill">
+              <span class="stat-num">{{ spots().length }}</span>
+              <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-pill sp-active">
+              <span class="stat-num">{{ activeCount() }}</span>
+              <span class="stat-label">Active</span>
+            </div>
+            <div class="stat-pill sp-inactive">
+              <span class="stat-num">{{ inactiveCount() }}</span>
+              <span class="stat-label">Inactive</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="main-content">
+
+        <!-- FILTER CHIPS -->
+        <div class="filter-chips">
+          <button class="chip" [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">
+            <mat-icon>grid_view</mat-icon>
+            All
+          </button>
+          <button class="chip" [class.active]="activeFilter() === 'active'" (click)="setFilter('active')">
+            <mat-icon>check_circle</mat-icon>
+            Active
+          </button>
+          <button class="chip" [class.active]="activeFilter() === 'inactive'" (click)="setFilter('inactive')">
+            <mat-icon>pause_circle</mat-icon>
+            Inactive
+          </button>
+        </div>
+
+        @if (loading()) {
+          <app-spinner message="Loading listings..." />
+        } @else if (filteredSpots().length === 0) {
+          <div class="empty-wrap">
+            <div class="empty-illustration">
+              <mat-icon>local_parking</mat-icon>
+            </div>
+            <h3>No listings yet</h3>
+            <p>Add your first parking spot to start earning</p>
+            <button class="cta-btn" (click)="addSpot()">
+              <mat-icon>add</mat-icon>
+              Add Your First Spot
+            </button>
+          </div>
+        } @else {
+          <div class="listings-list">
+            @for (spot of filteredSpots(); track spot.id) {
+              <div class="listing-card" [class.inactive]="!spot.isActive">
+
+                <!-- image -->
+                <div class="listing-image">
+                  <img [src]="spot.photos[0] || 'https://via.placeholder.com/400x200'" [alt]="spot.name" />
+                  <div class="listing-badges">
+                    @if (!spot.isActive) {
+                      <span class="badge badge-inactive">
+                        <mat-icon>pause</mat-icon>
+                        Inactive
+                      </span>
+                    }
+                    @if (spot.availableSlots === 0) {
+                      <span class="badge badge-full">
+                        <mat-icon>block</mat-icon>
+                        Full
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- info -->
+                <div class="listing-body">
+                  <div class="listing-top">
+                    <div class="listing-info">
+                      <h3>{{ spot.name }}</h3>
+                      <p class="address">
+                        <mat-icon>location_on</mat-icon>
+                        {{ spot.address }}
+                      </p>
+                    </div>
+                    <div class="listing-price">
+                      <span class="price-val">\${{ spot.pricePerHour }}</span>
+                      <span class="price-unit">/hr</span>
+                    </div>
+                  </div>
+
+                  <!-- stats row -->
+                  <div class="listing-stats">
+                    <div class="ls-item">
+                      <mat-icon>local_parking</mat-icon>
+                      <span>{{ spot.availableSlots }}/{{ spot.totalSlots }} slots</span>
+                    </div>
+                    <div class="ls-item">
+                      <mat-icon>star</mat-icon>
+                      <span>{{ spot.rating > 0 ? spot.rating.toFixed(1) : 'N/A' }}</span>
+                    </div>
+                    <div class="ls-item">
+                      <mat-icon>schedule</mat-icon>
+                      <span>{{ spot.operatingHours || '24/7' }}</span>
+                    </div>
+                  </div>
+
+                  <!-- actions -->
+                  <div class="listing-actions">
+                    <button class="toggle-btn" [class.on]="spot.isActive" (click)="toggleActive(spot)">
+                      <div class="toggle-track">
+                        <div class="toggle-thumb"></div>
+                      </div>
+                      <span>{{ spot.isActive ? 'Active' : 'Inactive' }}</span>
+                    </button>
+
+                    <div class="action-btns">
+                      <button class="act-btn edit" (click)="editSpot(spot)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button class="act-btn delete" (click)="deleteSpot(spot)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- FAB -->
+      <!-- <button class="fab" (click)="addSpot()">
+        <mat-icon>add</mat-icon>
+      </button> -->
+
+      <app-bottom-nav />
+    </div>

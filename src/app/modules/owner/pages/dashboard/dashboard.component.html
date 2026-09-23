@@ -1,0 +1,221 @@
+    <div class="dashboard-page">
+
+      <!-- ===== HERO HEADER ===== -->
+      <div class="hero-header">
+        <div class="hero-bg"></div>
+
+        <!-- animated background elements -->
+        <div class="anim-layer">
+          <div class="float-shape fs-1"><mat-icon>local_parking</mat-icon></div>
+          <div class="float-shape fs-2"><mat-icon>store</mat-icon></div>
+          <div class="float-shape fs-3"><mat-icon>payments</mat-icon></div>
+          <div class="float-shape fs-4"><mat-icon>book_online</mat-icon></div>
+          <div class="float-shape fs-5"><mat-icon>trending_up</mat-icon></div>
+
+          <div class="orb orb-1"></div>
+          <div class="orb orb-2"></div>
+
+          <svg class="grid-lines" viewBox="0 0 400 250" preserveAspectRatio="none">
+            <line x1="0" y1="0" x2="400" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <line x1="100" y1="0" x2="500" y2="250" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+            <line x1="200" y1="0" x2="600" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <line x1="300" y1="0" x2="700" y2="250" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="hero-content">
+          <div class="welcome-row">
+            <div class="text-block">
+              <p class="greeting">{{ greeting() }}</p>
+              <h1>{{ user()?.name || 'Owner' }}</h1>
+              <p class="role-tag">
+                <mat-icon>store</mat-icon>
+                Parking Owner
+              </p>
+            </div>
+            <button class="avatar-btn" (click)="goToProfile()">
+              <mat-icon>person</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="main-content">
+
+        @if (loading()) {
+          <app-spinner message="Loading dashboard..." />
+        } @else {
+
+          <!-- STATS ROW -->
+          <div class="stats-row">
+            <div class="stat-card sc-spots">
+              <div class="stat-icon">
+                <mat-icon>local_parking</mat-icon>
+              </div>
+              <div class="stat-info">
+                <span class="stat-num">{{ stats().totalSpots }}</span>
+                <span class="stat-label">Total Spots</span>
+              </div>
+            </div>
+            <div class="stat-card sc-active">
+              <div class="stat-icon">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <div class="stat-info">
+                <span class="stat-num">{{ stats().activeSpots }}</span>
+                <span class="stat-label">Active</span>
+              </div>
+            </div>
+            <div class="stat-card sc-bookings">
+              <div class="stat-icon">
+                <mat-icon>book_online</mat-icon>
+              </div>
+              <div class="stat-info">
+                <span class="stat-num">{{ stats().totalBookings }}</span>
+                <span class="stat-label">Bookings</span>
+              </div>
+            </div>
+            <div class="stat-card sc-earnings">
+              <div class="stat-icon">
+                <mat-icon>payments</mat-icon>
+              </div>
+              <div class="stat-info">
+                <span class="stat-num">{{ stats().totalEarnings }}</span>
+                <span class="stat-label">Earnings</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- OCCUPANCY CARD -->
+          <div class="card">
+            <div class="card-header">
+              <mat-icon>pie_chart</mat-icon>
+              <span>Occupancy Overview</span>
+            </div>
+            <div class="occupancy-visual">
+              <div class="ring-wrap">
+                <svg class="ring-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#eef6f8" stroke-width="8" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="url(#ringGrad)" stroke-width="8"
+                    stroke-linecap="round"
+                    [attr.stroke-dasharray]="ringDash()"
+                    stroke-dashoffset="0"
+                    transform="rotate(-90 50 50)" />
+                  <defs>
+                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#0f7173" />
+                      <stop offset="100%" stop-color="#2f9bbf" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="ring-center">
+                  <span class="ring-pct">{{ stats().occupancyRate }}%</span>
+                  <span class="ring-label">Occupied</span>
+                </div>
+              </div>
+              <div class="occupancy-details">
+                <div class="od-item">
+                  <div class="od-dot od-free"></div>
+                  <span>Free Slots</span>
+                  <strong>{{ totalSlots() - occupiedSlots() }}</strong>
+                </div>
+                <div class="od-item">
+                  <div class="od-dot od-occupied"></div>
+                  <span>Occupied</span>
+                  <strong>{{ occupiedSlots() }}</strong>
+                </div>
+                <div class="od-item">
+                  <div class="od-dot od-total"></div>
+                  <span>Total</span>
+                  <strong>{{ totalSlots() }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- QUICK ACTIONS -->
+          <div class="card">
+            <div class="card-header">
+              <mat-icon>bolt</mat-icon>
+              <span>Quick Actions</span>
+            </div>
+            <div class="actions-grid">
+              <button class="action-card" (click)="addSpot()">
+                <div class="ac-icon ac-add">
+                  <mat-icon>add_circle</mat-icon>
+                </div>
+                <span>Add Spot</span>
+              </button>
+              <button class="action-card" (click)="viewListings()">
+                <div class="ac-icon ac-list">
+                  <mat-icon>view_list</mat-icon>
+                </div>
+                <span>Listings</span>
+              </button>
+              <button class="action-card" (click)="viewBookings()">
+                <div class="ac-icon ac-book">
+                  <mat-icon>receipt_long</mat-icon>
+                </div>
+                <span>Bookings</span>
+              </button>
+              <button class="action-card" (click)="goToProfile()">
+                <div class="ac-icon ac-profile">
+                  <mat-icon>person</mat-icon>
+                </div>
+                <span>Profile</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- RECENT BOOKINGS -->
+          <div class="card">
+            <div class="card-header">
+              <mat-icon>history</mat-icon>
+              <span>Recent Bookings</span>
+              @if (recentBookings().length > 0) {
+                <span class="badge">{{ recentBookings().length }}</span>
+              }
+            </div>
+            @if (recentBookings().length === 0) {
+              <div class="empty-mini">
+                <mat-icon>event_busy</mat-icon>
+                <p>No bookings yet</p>
+              </div>
+            } @else {
+              <div class="bookings-list">
+                @for (b of recentBookings(); track b.id) {
+                  <div class="booking-row">
+                    <div class="br-icon">
+                      <mat-icon>local_parking</mat-icon>
+                    </div>
+                    <div class="br-info">
+                      <span class="br-name">{{ b.spotName }}</span>
+                      <span class="br-meta">{{ b.userName }} &middot; {{ b.totalHours }}h</span>
+                    </div>
+                    <div class="br-right">
+                      <span class="br-cost">\${{ b.totalCost }}</span>
+                      <span class="br-status" [class]="'bs-' + b.status">{{ b.status }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- PERFORMANCE TIP -->
+          <div class="tip-card">
+            <div class="tip-icon">
+              <mat-icon>tips_and_updates</mat-icon>
+            </div>
+            <div class="tip-content">
+              <h3>Boost Your Earnings</h3>
+              <p>Add photos and detailed descriptions to attract more bookings.</p>
+            </div>
+          </div>
+
+        }
+      </div>
+
+      <app-bottom-nav />
+    </div>

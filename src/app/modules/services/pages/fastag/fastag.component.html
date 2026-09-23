@@ -1,0 +1,271 @@
+<div class="service-page">
+
+  <!-- ===== HERO HEADER ===== -->
+  <div class="hero-header">
+    <div class="hero-bg"></div>
+    <div class="anim-layer">
+      <div class="float-shape fs-1"><mat-icon>toll</mat-icon></div>
+      <div class="float-shape fs-2"><mat-icon>local_parking</mat-icon></div>
+      <div class="float-shape fs-3"><mat-icon>payments</mat-icon></div>
+      <div class="float-shape fs-4"><mat-icon>receipt_long</mat-icon></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <svg class="grid-lines" viewBox="0 0 400 250" preserveAspectRatio="none">
+        <line x1="0" y1="0" x2="400" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="100" y1="0" x2="500" y2="250" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="200" y1="0" x2="600" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="hero-content">
+      <button class="back-btn" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="hero-title-group">
+        <div class="hero-icon-wrap"><mat-icon>toll</mat-icon></div>
+        <h1>FASTag Recharge</h1>
+        <p class="hero-sub">Top up &amp; manage your FASTag</p>
+      </div>
+    </div>
+  </div>
+
+  @if (verifying()) {
+    <app-spinner [fullscreen]="true" message="Verifying your FASTag..." />
+  }
+  @if (loading()) {
+    <app-spinner [fullscreen]="true" message="Processing payment..." />
+  }
+
+  @if (paid()) {
+    <div class="toast-success">
+      <mat-icon>check_circle</mat-icon>
+      <span>Recharge successful! New balance: {{ balance() }}</span>
+    </div>
+  }
+
+  <div class="page-body">
+
+    <!-- ===== STEP INDICATOR ===== -->
+    <div class="stepper">
+      <div class="step" [class.active]="step() === 'vehicle'" [class.done]="step() !== 'vehicle'">
+        <span class="step-circle">
+          @if (step() !== 'vehicle') { <mat-icon>check</mat-icon> } @else { 1 }
+        </span>
+        <span class="step-label">Vehicle</span>
+      </div>
+      <div class="step-line" [class.filled]="step() !== 'vehicle'"></div>
+
+      <div class="step" [class.active]="step() === 'bank'" [class.done]="step() === 'amount'">
+        <span class="step-circle">
+          @if (step() === 'amount') { <mat-icon>check</mat-icon> } @else { 2 }
+        </span>
+        <span class="step-label">Bank</span>
+      </div>
+      <div class="step-line" [class.filled]="step() === 'amount'"></div>
+
+      <div class="step" [class.active]="step() === 'amount'">
+        <span class="step-circle">3</span>
+        <span class="step-label">Recharge</span>
+      </div>
+    </div>
+
+    <!-- ===== STEP 1: VEHICLE NUMBER ===== -->
+    @if (step() === 'vehicle') {
+      <div class="form-section center-section">
+        <div class="section-icon-lg"><mat-icon>directions_car</mat-icon></div>
+        <h2 class="center-title">Enter Vehicle Number</h2>
+        <p class="center-sub">We'll use this to find or link your FASTag</p>
+
+        <div class="field-group">
+          <label class="field-label">Vehicle Number <span class="required">*</span></label>
+          <div class="input-wrap">
+            <mat-icon class="field-icon">pin</mat-icon>
+            <input
+              type="text"
+              [(ngModel)]="vehicleNo"
+              placeholder="e.g. TN 09 AB 1234"
+              class="custom-input"
+              (keyup.enter)="continueFromVehicle()"
+            />
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary-full" [disabled]="!isVehicleValid()" (click)="continueFromVehicle()">
+          Continue
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    }
+
+    <!-- ===== STEP 2: BANK SELECTION ===== -->
+    @if (step() === 'bank') {
+      <div class="vehicle-chip">
+        <mat-icon>directions_car</mat-icon>
+        <span>{{ vehicleNo }}</span>
+        <button type="button" class="chip-edit" (click)="editVehicle()">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon si-blue"><mat-icon>account_balance</mat-icon></div>
+          <div>
+            <h2>Select FASTag Bank</h2>
+            <p>Search or tap a bank that issued your tag</p>
+          </div>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="bank-search-wrap">
+          <mat-icon class="bank-search-icon">search</mat-icon>
+          <input
+            type="text"
+            class="bank-search-input"
+            placeholder="Search bank name..."
+            [(ngModel)]="bankSearch"
+            autocomplete="off"
+          />
+          @if (bankSearch) {
+            <button type="button" class="bank-search-clear" (click)="clearBankSearch()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+
+        @if (!bankSearch) {
+          <div class="bank-grid-label">
+            {{ showAllBanks ? 'All banks' : 'Popular banks' }}
+          </div>
+        } @else if (filteredOperators.length === 0) {
+          <div class="bank-empty">
+            <mat-icon>search_off</mat-icon>
+            <span>No banks match "{{ bankSearch }}"</span>
+          </div>
+        } @else {
+          <div class="bank-grid-label">Results for "{{ bankSearch }}"</div>
+        }
+
+        <!-- CIRCULAR BANK ICONS -->
+        <div class="bank-circle-grid">
+          @for (op of filteredOperators; track op.value) {
+            <button
+              type="button"
+              class="bank-circle-item"
+              [class.selected]="operator === op.value"
+              (click)="selectBank(op.value)"
+            >
+              <span class="bank-circle" [style.background]="'linear-gradient(135deg,' + op.color + ', ' + op.color + 'cc)'">
+                <span class="bank-initials">{{ op.initials }}</span>
+                @if (operator === op.value) {
+                  <span class="bank-check"><mat-icon>check</mat-icon></span>
+                }
+              </span>
+              <span class="bank-circle-label">{{ op.label }}</span>
+            </button>
+          }
+        </div>
+
+        @if (!bankSearch && operators.length > 8) {
+          <button type="button" class="bank-show-all" (click)="toggleShowAll()">
+            @if (showAllBanks) {
+              Show less
+              <mat-icon>expand_less</mat-icon>
+            } @else {
+              View all {{ operators.length }} banks
+              <mat-icon>expand_more</mat-icon>
+            }
+          </button>
+        }
+
+        @if (selectedOperator) {
+          <div class="bank-selected-bar">
+            <span class="bank-selected-dot" [style.background]="selectedOperator.color"></span>
+            <span>Selected: <strong>{{ selectedOperator.label }}</strong></span>
+            <mat-icon>check_circle</mat-icon>
+          </div>
+        }
+      </div>
+
+      <div class="sticky-footer">
+        <button type="button" class="btn-primary-full" [disabled]="!operator" (click)="verifyBank()">
+          <mat-icon>verified</mat-icon>
+          Verify Bank
+        </button>
+      </div>
+    }
+
+    <!-- ===== STEP 3: WALLET + RECHARGE ===== -->
+    @if (step() === 'amount') {
+
+      <!-- WALLET / BALANCE CARD -->
+      <div class="balance-card">
+        <div class="balance-bg"></div>
+        <div class="balance-content">
+          <div class="balance-top">
+            <span class="balance-label">
+              <mat-icon class="verified-tick">verified</mat-icon>
+              Current Balance
+            </span>
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <span class="balance-amount">{{ balance() }}<small>.00</small></span>
+          <div class="balance-meta">
+            <span class="tag"><mat-icon>account_balance</mat-icon> {{ selectedOperator?.label }}</span>
+            <span class="tag"><mat-icon>local_parking</mat-icon> {{ vehicleNo }}</span>
+          </div>
+          <button type="button" class="change-bank-link" (click)="changeBank()">Change bank</button>
+        </div>
+      </div>
+
+      <!-- AMOUNT -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon si-green"><mat-icon>payments</mat-icon></div>
+          <div>
+            <h2>Recharge Amount</h2>
+            <p>Select or enter custom amount</p>
+          </div>
+        </div>
+
+        <div class="amount-grid">
+          @for (a of amounts; track a) {
+            <button type="button" class="amount-chip" [class.selected]="amount === a" (click)="amount = a">
+              {{ a }}
+            </button>
+          }
+        </div>
+
+        <div class="field-group custom-amount">
+          <label class="field-label">Custom Amount</label>
+          <div class="input-wrap price-input">
+            <span class="currency">$</span>
+            <input type="number" [(ngModel)]="amount" min="1" class="custom-input price-field" />
+          </div>
+        </div>
+
+        <div class="summary-row">
+          <span>Amount</span>
+          <strong>{{ amount }}.00</strong>
+        </div>
+        <div class="summary-row">
+          <span>Convenience fee</span>
+          <strong class="free">FREE</strong>
+        </div>
+        <div class="summary-row total">
+          <span>Total payable</span>
+          <strong>{{ amount }}.00</strong>
+        </div>
+      </div>
+
+      <!-- PAY -->
+      <div class="submit-section">
+        <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
+        <button type="button" class="btn-submit" [disabled]="!vehicleNo.trim() || loading()" (click)="recharge()">
+          <mat-icon>bolt</mat-icon>
+          Recharge {{ amount }}
+        </button>
+      </div>
+    }
+
+  </div>
+</div>

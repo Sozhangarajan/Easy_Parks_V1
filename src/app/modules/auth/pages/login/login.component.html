@@ -1,0 +1,46 @@
+    <div class="login-page">
+      <div class="header">
+        <h1>Welcome Back</h1>
+        <p>Log in to your account</p>
+      </div>
+
+      @if (loading()) {
+        <app-spinner [fullscreen]="true" message="Logging in..." />
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email or Mobile</mat-label>
+          <input matInput formControlName="emailOrMobile" placeholder="Enter email or mobile number" />
+          <mat-icon matPrefix>person</mat-icon>
+          @if (loginForm.get('emailOrMobile')?.hasError('required')) {
+            <mat-error>Email or mobile is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="password" [type]="hidePassword() ? 'password' : 'text'" />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (loginForm.get('password')?.hasError('required')) {
+            <mat-error>Password is required</mat-error>
+          }
+        </mat-form-field>
+
+        @if (errorMessage()) {
+          <div class="error-message">{{ errorMessage() }}</div>
+        }
+
+        <button mat-flat-button type="submit" class="full-width submit-btn" [disabled]="loginForm.invalid || loading()">
+          Log In
+        </button>
+      </form>
+
+      <div class="links">
+        <a routerLink="/auth/forgot-password">Forgot Password?</a>
+        <span>Don't have an account? <a routerLink="/auth/register">Register</a></span>
+      </div>
+    </div>

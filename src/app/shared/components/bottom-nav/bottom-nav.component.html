@@ -1,0 +1,37 @@
+    <nav class="bottom-nav" [class.owner-nav]="role === 'owner'">
+      @if (role === 'user') {
+        <a routerLink="/user/home" routerLinkActive="active" class="nav-item">
+          <mat-icon>home</mat-icon>
+          <span>Home</span>
+        </a>
+        <a routerLink="/user/search" routerLinkActive="active" class="nav-item">
+          <mat-icon>search</mat-icon>
+          <span>Search</span>
+        </a>
+        <a routerLink="/user/my-bookings" routerLinkActive="active" class="nav-item">
+          <mat-icon>book_online</mat-icon>
+          <span>Bookings</span>
+        </a>
+        <a routerLink="/user/profile" routerLinkActive="active" class="nav-item">
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </a>
+      } @else {
+        <a routerLink="/owner/dashboard" routerLinkActive="active" class="nav-item">
+          <mat-icon>dashboard</mat-icon>
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/owner/listings" routerLinkActive="active" class="nav-item">
+          <mat-icon>local_parking</mat-icon>
+          <span>Listings</span>
+        </a>
+        <a routerLink="/owner/bookings-requests" routerLinkActive="active" class="nav-item">
+          <mat-icon>receipt_long</mat-icon>
+          <span>Bookings</span>
+        </a>
+        <a routerLink="/owner/profile" routerLinkActive="active" class="nav-item">
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </a>
+      }
+    </nav>

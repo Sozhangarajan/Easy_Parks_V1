@@ -6,24 +6,8 @@ import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/materia
   selector: 'app-confirm-dialog',
   standalone: true,
   imports: [MatButtonModule, MatDialogModule],
-  template: `
-    <div class="confirm-dialog">
-      <h2>{{ data.title }}</h2>
-      <p>{{ data.message }}</p>
-      <div class="actions">
-        <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-flat-button [color]="data.confirmColor || 'primary'" (click)="onConfirm()">
-          {{ data.confirmText || 'Confirm' }}
-        </button>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .confirm-dialog { padding: 24px; }
-    h2 { margin: 0 0 8px; font-size: 18px; }
-    p { margin: 0 0 24px; color: #6b7280; font-size: 14px; }
-    .actions { display: flex; justify-content: flex-end; gap: 8px; }
-  `],
+  templateUrl: './confirm-dialog.component.html',
+  styleUrls: ['./confirm-dialog.component.css'],
 })
 export class ConfirmDialogComponent {
   dialogRef = inject(MatDialogRef);

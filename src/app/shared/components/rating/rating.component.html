@@ -1,0 +1,18 @@
+    <div class="rating-widget">
+      @for (star of [1, 2, 3, 4, 5]; track star) {
+        <button
+          type="button"
+          class="star-btn"
+          [class.filled]="star <= (interactive() ? tempRating : value())"
+          (mouseenter)="onHover(star)"
+          (mouseleave)="onLeave()"
+          (click)="onRate(star)"
+          [disabled]="!interactive()"
+        >
+          <mat-icon>{{ star <= (interactive() ? tempRating : value()) ? 'star' : 'star_border' }}</mat-icon>
+        </button>
+      }
+      @if (showValue()) {
+        <span class="rating-value">{{ value() | number:'1.1-1' }}</span>
+      }
+    </div>
